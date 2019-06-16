@@ -1,0 +1,1 @@
+poe-trade-whispers-extension
