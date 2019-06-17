@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "default_locale": "en",
-    "name": "Poe.trade Whispers",
+    "name": "Poe.trade Whispers - Tool for Path of Exile",
     "description": "Tracks whether you've whispered someone.",
     "content_security_policy": "script-src 'self'; object-src 'self'",
     "content_scripts": [
@@ -19,7 +19,7 @@
         "default_popup": "popup.html"
     },
     "permissions": ["background", "cookies", "declarativeContent", "storage", "*://*.poe.trade/*"],
-    "version": "1.0.0",
+    "version": "1.0.2",
     "icons": {
         "16": "icon16.png",
         "48": "icon48.png",

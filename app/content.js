@@ -7,14 +7,7 @@ const getStorageAsync = (...keys) =>
 const setStorageAsync = (key, value) =>
     new Promise(resolve => chrome.storage.sync.set({ [key]: value }, params => resolve(params)));
 
-class Cookies {
-    static key = 'ptw:data';
-    static expiry = 9000000000; // a really long time
-
-    static getAsync() {
-        return sendMessageAsync('cookie/get', { url: location.origin, name: Cookies.key });
-    }
-
+class Storage {
     static async get() {
         try {
             let { data } = await getStorageAsync('data');
@@ -29,15 +22,6 @@ class Cookies {
         } catch (error) {
             throw new Error(error);
         }
-    }
-
-    static setAsync(value) {
-        return sendMessageAsync('cookie/set', {
-            url: location.origin,
-            name: Cookies.key,
-            expirationDate: Cookies.expiry,
-            value
-        });
     }
 
     static async set(data) {
@@ -95,7 +79,7 @@ class App {
 
     async _save() {
         try {
-            await Cookies.set(this.dataManager.getUnique());
+            await Storage.set(this.dataManager.getUnique());
         } catch (error) {
             throw new Error(error);
         }
@@ -103,7 +87,7 @@ class App {
 
     async load() {
         try {
-            const data = await Cookies.get();
+            const data = await Storage.get();
             const { timeout } = await getStorageAsync('timeout');
             this.timeout = timeout || 5;
             this.dataManager = new DataManager(data);
@@ -138,7 +122,6 @@ class App {
     onItemClick(event) {
         const element = event.currentTarget;
         const $element = $(element);
-        const ign = ItemElement.getIgn($element);
         const id = ItemElement.getId($element);
         let item;
 
@@ -198,6 +181,8 @@ class DataManager {
     addWhisper(item) {
         if (this.hasItem(item)) {
             this.state[item].w++;
+        } else {
+            this.addItem(item);
         }
         return this.state[item];
     }
@@ -253,7 +238,6 @@ class DataManager {
 class ItemElement {
     $element;
     id;
-    ign;
     whisperElement;
 
     constructor(element) {
@@ -264,7 +248,6 @@ class ItemElement {
     initialize() {
         this.whisperElement = new WhisperElement(this.$element.find('ul.proplist .whisper-btn'));
         this.id = ItemElement.getId(this.$element);
-        this.ign = ItemElement.getIgn(this.$element);
     }
 
     hasId() {
@@ -281,10 +264,6 @@ class ItemElement {
             .split(' ')
             .find(element => element.includes('item-live'));
         return className ? className.substring(className.lastIndexOf('-') + 1) : undefined;
-    }
-
-    static getIgn($element) {
-        return $element.data('ign');
     }
 }
 
